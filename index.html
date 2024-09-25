@@ -207,7 +207,7 @@
             ],
             view: new ol.View({
                 center: ol.proj.fromLonLat([-159.75, -21.23]),  // Set center near Rarotonga
-                zoom: 15
+                zoom: 16
             })
         });
 
@@ -252,7 +252,7 @@
                     var lat = position.coords.latitude;
                     var coords = ol.proj.fromLonLat([lon, lat]);
                     map.getView().setCenter(coords);
-                    map.getView().setZoom(17);
+                    map.getView().setZoom(19);
 
                     // Add marker to the user's location
                     addMarker(lon, lat);  // Add this line to place the marker
