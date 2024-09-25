@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Land Use in Catchment Management Zones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.css">
+    <style>
+        /* Main styling for the map and controls */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        /* Map section styling */
+        .map {
+            width: 70%;
+            height: 100vh;
+            order: 1;
+        }
+
+        /* Controls section styling */
+        .controls {
+            width: 30%;
+            padding: 10px;
+            background-color: #f9f9f9;
+            order: 2;
+            box-sizing: border-box;
+        }
+
+        .legend {
+            margin-top: 20px;
+        }
+
+        .geolocate-button, .csv-functions {
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 5px;
+        }
+
+        button {
+            margin-top: 10px;
+        }
+
+        /* Title styling */
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 10px;
+        }
+		/* text styling */
+        h2 {
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            font-weight: italic;
+            text-align: left;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Media query for mobile/small screens */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .map {
+                width: 100%;
+                height: 50vh;
+            }
+
+            .controls {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>GroundTruth4U</h1>
+    <h2>Cook Islands catchment management zones</h2>
+    <div class="container">
+        <div id="map" class="map"></div>
+
+        <div class="controls">
+            <h3>Controls</h3>
+            <input type="checkbox" id="toggleAllLayers" checked>
+            <label for="toggleAllLayers">Land use in catchment management zones</label><br>
+
+            <!-- Geolocation Button under the Legend -->
+            <button id="geolocate" class="geolocate-button">Zoom to My Location</button>
+
+            <div class="legend">
+                <h3>Map Legends</h3>
+                <!-- Legend for Rivers -->
+                <img src="http://localhost:8080/geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
+
+                <!-- Legend for Land Use -->
+                <img src="http://localhost:8080/geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Land_use_fixed_geom&format=image/png" alt="Land Use Legend">
+            </div>
+
+            <!-- Lat and Long functionality -->
+            <h3>Lat and Long</h3>
+            <p>Click on the map to get Lat/Lon.</p>
+            <div>
+                <input type="text" id="latLonDisplay" placeholder="Coordinates will appear here..." readonly>
+                <input type="text" id="luUpdate" placeholder="Enter description (400 chars max)" maxlength="400">
+                <button id="addPoint">Add Point</button>
+                <button id="downloadCSV">Download CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.js"></script>
+    <script>
+        // Variables to store points and LU_Update data
+        var pointData = [];
+        var selectedLatLon = null;
+
+        // Create the OSM base layer
+        var osmLayer = new ol.layer.Tile({
+            source: new ol.source.OSM()
+        });
+
+        // Create the CMZ Land Use WMS layer (this should be at the bottom)
+        var landUseLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8080/geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Land_use_fixed_geom',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
+                serverType: 'geoserver',
+                crossOrigin: 'anonymous'
+            }),
+            visible: true
+        });
+
+        // Create the CMZ Rivers WMS layer (updated URL)
+        var riversLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8080/geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Rivers',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
+                serverType: 'geoserver',
+                crossOrigin: 'anonymous'
+            }),
+            visible: true
+        });
+
+        // Create the CMZ Catchment Boundaries WMS layer (updated URL)
+        var catchmentBoundariesLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8080/geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Catchment_boundaries',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
+                serverType: 'geoserver',
+                crossOrigin: 'anonymous'
+            }),
+            visible: true
+        });
+
+        // Create the CMZ Buildings WMS layer (topmost layer)
+        var buildingsLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'http://localhost:8080/geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Buildings4',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
+                serverType: 'geoserver',
+                crossOrigin: 'anonymous'
+            }),
+            visible: true
+        });
+
+        // Initialize the map with OSM as default and layers in the correct order
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                osmLayer,                 // OpenStreetMap (default)
+                landUseLayer,             // Land Use (bottom)
+                riversLayer,              // Rivers
+                catchmentBoundariesLayer, // Catchment Boundaries
+                buildingsLayer            // Buildings (top)
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([-159.75, -21.23]),  // Set center near Rarotonga
+                zoom: 12
+            })
+        });
+
+        // Toggle visibility for all layers
+        document.getElementById('toggleAllLayers').addEventListener('change', function () {
+            var isChecked = this.checked;
+            landUseLayer.setVisible(isChecked);
+            riversLayer.setVisible(isChecked);
+            catchmentBoundariesLayer.setVisible(isChecked);
+            buildingsLayer.setVisible(isChecked);
+        });
+
+        // Geolocation function to zoom to user's current location
+        document.getElementById('geolocate').addEventListener('click', function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var coords = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
+                    map.getView().setCenter(coords);
+                    map.getView().setZoom(14);
+                }, function (error) {
+                    alert('Unable to retrieve your location. Make sure location services are enabled.');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        });
+
+        // Handle map clicks to get lat/lon and display them
+        map.on('click', function(evt) {
+            var coordinate = ol.proj.toLonLat(evt.coordinate);
+            var lon = coordinate[0].toFixed(6);
+            var lat = coordinate[1].toFixed(6);
+            selectedLatLon = { lat: lat, lon: lon };
+            document.getElementById('latLonDisplay').value = `Lat: ${lat}, Lon: ${lon}`;
+        });
+
+        // Function to add point with description
+        document.getElementById('addPoint').addEventListener('click', function () {
+            var description = document.getElementById('luUpdate').value;
+
+            if (selectedLatLon && description.trim().length > 0) {
+                pointData.push({
+                    lat: selectedLatLon.lat,
+                    lon: selectedLatLon.lon,
+                    description: description
+                });
+                document.getElementById('luUpdate').value = "";  // Clear the description field
+                document.getElementById('latLonDisplay').value = "";  // Clear lat/lon display
+                selectedLatLon = null;  // Reset selected coordinates
+                alert("Point added successfully!");
+            } else {
+                alert('Please select a point on the map and enter a description.');
+            }
+        });
+
+        // Function to download data as CSV
+        document.getElementById('downloadCSV').addEventListener('click', function() {
+            if (pointData.length > 0) {
+                var csvContent = "data:text/csv;charset=utf-8,Lat,Lon,Description\n";
+                pointData.forEach(function(row) {
+                    csvContent += `${row.lat},${row.lon},${row.description}\n`;
+                });
+
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', 'points_data.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('No points to download.');
+            }
+        });
+    </script>
+</body>
+</html>
