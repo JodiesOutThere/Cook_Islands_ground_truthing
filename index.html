@@ -217,7 +217,7 @@
             style: new ol.style.Style({
                 image: new ol.style.Circle({
                     radius: 7,
-                    fill: new ol.style.Fill({ color: 'grey' }),
+                    fill: new ol.style.Fill({ color: 'red' }),
                     stroke: new ol.style.Stroke({
                         color: [255, 0, 0], width: 2
                     })
@@ -252,7 +252,7 @@
                     var lat = position.coords.latitude;
                     var coords = ol.proj.fromLonLat([lon, lat]);
                     map.getView().setCenter(coords);
-                    map.getView().setZoom(22);
+                    map.getView().setZoom(18);
 
                     // Add marker to the user's location
                     addMarker(lon, lat);  // Add this line to place the marker
