@@ -57,6 +57,7 @@
             text-align: left;
             margin-top: 10px;
         }
+
 		/* text styling */
         h2 {
             font-family: Arial, sans-serif;
@@ -210,6 +211,30 @@
             })
         });
 
+        // Add a marker layer for geolocation
+        var markerLayer = new ol.layer.Vector({
+            source: new ol.source.Vector(),
+            style: new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 7,
+                    fill: new ol.style.Fill({ color: 'grey' }),
+                    stroke: new ol.style.Stroke({
+                        color: [255, 0, 0], width: 2
+                    })
+                })
+            })
+        });
+        map.addLayer(markerLayer);  // Add marker layer to the map
+
+        // Function to add a marker at the user's geolocation
+        function addMarker(lon, lat) {
+            var marker = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat]))
+            });
+            markerLayer.getSource().clear();  // Clear previous marker
+            markerLayer.getSource().addFeature(marker);  // Add new marker
+        }
+
         // Toggle visibility for all layers
         document.getElementById('toggleAllLayers').addEventListener('change', function () {
             var isChecked = this.checked;
@@ -223,9 +248,14 @@
         document.getElementById('geolocate').addEventListener('click', function () {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    var coords = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
+                    var lon = position.coords.longitude;
+                    var lat = position.coords.latitude;
+                    var coords = ol.proj.fromLonLat([lon, lat]);
                     map.getView().setCenter(coords);
-                    map.getView().setZoom(28);
+                    map.getView().setZoom(22);
+
+                    // Add marker to the user's location
+                    addMarker(lon, lat);  // Add this line to place the marker
                 }, function (error) {
                     alert('Unable to retrieve your location. Make sure location services are enabled.');
                 });
