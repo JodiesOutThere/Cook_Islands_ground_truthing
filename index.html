@@ -225,7 +225,7 @@
                 navigator.geolocation.getCurrentPosition(function (position) {
                     var coords = ol.proj.fromLonLat([position.coords.longitude, position.coords.latitude]);
                     map.getView().setCenter(coords);
-                    map.getView().setZoom(20);
+                    map.getView().setZoom(28);
                 }, function (error) {
                     alert('Unable to retrieve your location. Make sure location services are enabled.');
                 });
