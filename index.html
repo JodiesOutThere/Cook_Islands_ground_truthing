@@ -14,19 +14,17 @@
         /* Flex container for title and subtitle */
         .title-container {
             display: flex;
-            align-items: center; /* Vertically align the h1 and h2 */
+            align-items: baseline; /* Vertically align the h1 and h2 */
             padding-left: 20px;
         }
 
         h1 {
             font-size: 36px;
             margin-right: 40px; /* Adds space between h1 and h2 */
-            display: inline-block;
         }
 
         h2 {
             font-size: 18px;
-            display: inline-block;
         }
 
         /* Container that holds both map and controls */
@@ -139,6 +137,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.js"></script>
+    <!-- Existing JavaScript code can go here -->
     <script>
         // Variables to store points and LU_Update data
         var pointData = [];
