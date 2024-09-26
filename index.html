@@ -1,43 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Land Use in Catchment Management Zones</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.css">
     <style>
-        /* Main styling for the map and controls */
+        /* Main styling for the body */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh; /* Ensure the body takes up full height */
         }
 
+        /* Container that holds both map and controls */
         .container {
             display: flex;
-            flex-direction: row; /* Desktop: Map and controls side by side */
-            flex-grow: 1;
+            flex-direction: row; /* Desktop view: map and controls side by side */
             width: 100%;
+            height: 100vh; /* Full height of the viewport */
         }
 
-        /* Map section styling */
-        .map {
-            width: 70%; /* Take 70% of the screen width on desktop */
+        /* Map section */
+        #map {
+            width: 70%; /* Map takes up 70% of the width on desktop */
             height: 100vh; /* Full height */
-            order: 1;
         }
 
-        /* Controls section styling */
+        /* Controls section */
         .controls {
-            width: 30%; /* Take 30% of the screen width on desktop */
+            width: 30%; /* Controls take up 30% of the width on desktop */
             padding: 10px;
             background-color: #f9f9f9;
             box-sizing: border-box;
-            order: 2;
-            overflow-y: auto; /* Scrollable if content overflows */
+            overflow-y: auto; /* Allow scrolling in controls if necessary */
         }
 
+        /* Styling for inputs and buttons */
         input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -48,6 +45,7 @@
             margin-top: 10px;
             font-size: 16px;
             padding: 10px;
+            width: 100%;
         }
 
         h1 {
@@ -56,25 +54,23 @@
 
         h2 {
             font-size: 18px;
-            font-weight: italic;
             margin: 20px 0;
         }
 
-        /* Media query for mobile/small screens */
+        /* Media query for mobile screens */
         @media (max-width: 768px) {
             .container {
                 flex-direction: column; /* Stack map and controls vertically on mobile */
             }
 
-            .map {
-                width: 100%; /* Full width for map */
-                height: 50vh; /* Adjust map height on mobile */
+            #map {
+                width: 100%; /* Map takes full width */
+                height: 50vh; /* Map takes half of the screen height on mobile */
             }
 
             .controls {
-                width: 100%; /* Full width for controls on mobile */
-                padding: 20px; /* Add more padding */
-                order: 2;
+                width: 100%; /* Controls take full width on mobile */
+                height: auto;
             }
 
             h1 {
@@ -85,13 +81,7 @@
                 font-size: 20px;
             }
 
-            input[type="text"] {
-                font-size: 18px;
-                padding: 12px;
-            }
-
-            button {
-                width: 100%;
+            input[type="text"], button {
                 font-size: 18px;
                 padding: 12px;
             }
@@ -102,8 +92,10 @@
     <h1>GroundTruth4U</h1>
     <h2>Cook Islands catchment management zones</h2>
     <div class="container">
+        <!-- Map Section -->
         <div id="map" class="map"></div>
 
+        <!-- Controls Section -->
         <div class="controls">
             <h3>Controls</h3>
             <input type="checkbox" id="toggleAllLayers" checked>
