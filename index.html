@@ -89,8 +89,8 @@
     </style>
 </head>
 <body>
-    <h1>GroundTruth4U</h1>
-    <h2>Cook Islands catchment management zones</h2>
+    <h1>LandTruths</h1>
+    <h2>Paperless ground truthing for spatial datasets</h2>
     <div class="container">
         <!-- Map Section -->
         <div id="map" class="map"></div>
@@ -99,7 +99,7 @@
         <div class="controls">
             <h3>Controls</h3>
             <input type="checkbox" id="toggleAllLayers" checked>
-            <label for="toggleAllLayers">Land use in catchment management zones</label><br>
+            <label for="toggleAllLayers">Cook Islands catchment management zones</label><br>
 
             <!-- Geolocation Button under the Legend -->
             <button id="geolocate" class="geolocate-button">Zoom to My Location</button>
@@ -107,14 +107,14 @@
             <div class="legend">
                 <h3>Map Legends</h3>
                 <!-- Legend for Rivers -->
-                <img src="http://localhost:8080/geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
+                <img src="./geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
 
                 <!-- Legend for Land Use -->
-                <img src="http://localhost:8080/geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Land_use_fixed_geom&format=image/png" alt="Land Use Legend">
+                <img src="./geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Land_use_fixed_geom&format=image/png" alt="Land Use Legend">
             </div>
 
             <!-- Lat and Long functionality -->
-            <h3>Lat and Long</h3>
+            <h3>Coordinates</h3>
             <p>Click on the map to get Lat/Lon.</p>
             <div>
                 <input type="text" id="latLonDisplay" placeholder="Coordinates will appear here..." readonly>
@@ -139,7 +139,7 @@
         // Create the CMZ Land Use WMS layer (this should be at the bottom)
         var landUseLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'http://localhost:8080/geoserver/CI/wms',
+                url: './geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Land_use_fixed_geom',
                     'TILED': true,
@@ -154,7 +154,7 @@
         // Create the CMZ Rivers WMS layer (updated URL)
         var riversLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'http://localhost:8080/geoserver/CI/wms',
+                url: './geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Rivers',
                     'TILED': true,
@@ -169,7 +169,7 @@
         // Create the CMZ Catchment Boundaries WMS layer (updated URL)
         var catchmentBoundariesLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'http://localhost:8080/geoserver/CI/wms',
+                url: './geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Catchment_boundaries',
                     'TILED': true,
@@ -184,7 +184,7 @@
         // Create the CMZ Buildings WMS layer (topmost layer)
         var buildingsLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'http://localhost:8080/geoserver/CI/wms',
+                url: './geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Buildings4',
                     'TILED': true,
