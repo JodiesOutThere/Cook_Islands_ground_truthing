@@ -97,7 +97,7 @@
 
         <!-- Controls Section -->
         <div class="controls">
-            <h3>Controls</h3>
+            <h3>Layers</h3>
             <input type="checkbox" id="toggleAllLayers" checked>
             <label for="toggleAllLayers">Cook Islands catchment management zones</label><br>
 			
@@ -114,20 +114,20 @@
             <button id="geolocate" class="geolocate-button">Zoom to My Location</button>
 
             <div class="legend">
-                <h3>Map Legends</h3>
+                <h3>Legend</h3>
                 <!-- Legend for Rivers -->
                 <img src="./geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
 
-                <!-- Legend for Land Use -->
-                <img src="./geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Land_use_fixed_geom&format=image/png" alt="Land Use Legend">
-            </div>
+               <!-- Legend for Vaivase Land Use -->
+		<img src="https://landtruths.com/geoserver/Samoa/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=Samoa%3AVaivase_land_use&format=image/png" alt="Vaivase Land Use Legend">
+ 		</div>
 
             <!-- Lat and Long functionality -->
             <h3>Coordinates</h3>
             <p>Click on the map to get Lat/Lon.</p>
             <div>
                 <input type="text" id="latLonDisplay" placeholder="Coordinates will appear here..." readonly>
-                <input type="text" id="luUpdate" placeholder="Enter description (400 chars max)" maxlength="400">
+                <input type="text" id="luUpdate" placeholder="Enter a description about your location" maxlength="1000000">
                 <button id="addPoint">Add Point</button>
                 <button id="downloadCSV">Download CSV</button>
             </div>
