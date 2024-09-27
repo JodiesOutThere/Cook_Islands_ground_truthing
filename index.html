@@ -100,8 +100,17 @@
             <h3>Controls</h3>
             <input type="checkbox" id="toggleAllLayers" checked>
             <label for="toggleAllLayers">Cook Islands catchment management zones</label><br>
+			
+			<input type="checkbox" id="toggleVaivase" checked>
+			<label for="toggleVaivase">Samoa - Vaivase catchment land use</label><br>
 
-            <!-- Geolocation Button under the Legend -->
+			<input type="checkbox" id="toggleMoataaLandUse" checked>
+			<label for="toggleMoataaLandUse">Samoa - Moataa region Land use</label><br>
+
+			<input type="checkbox" id="toggleMoataaMangrove" checked>
+			<label for="toggleMoataaMangrove">Samoa - Moataa mangrove and wetland extent 2024</label><br>
+            
+			<!-- Geolocation Button under the Legend -->
             <button id="geolocate" class="geolocate-button">Zoom to My Location</button>
 
             <div class="legend">
@@ -195,23 +204,128 @@
             }),
             visible: true
         });
+		// New Vaivase layers
+    var vaivaseLandUseLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_land_use', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
 
-        // Initialize the map with OSM as default and layers in the correct order
-        var map = new ol.Map({
-            target: 'map',
-            layers: [
-                osmLayer,                 // OpenStreetMap (default)
-                landUseLayer,             // Land Use (bottom)
-                riversLayer,              // Rivers
-                catchmentBoundariesLayer, // Catchment Boundaries
-                buildingsLayer            // Buildings (top)
-            ],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([-159.75, -21.23]),  // Set center near Rarotonga
-                zoom: 13
-            })
-        });
+    var vaivaseRiversLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_rivers', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
 
+    var vaivaseRoadsLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_roads', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var vaivaseBuildingsLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_buildings', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var vaivaseCatchmentLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_catchment', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    // New Moataa Land Use layers
+    var moataaLandUseLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_LU', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var moataaRiversLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_rivers', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var moataaBuildingsLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_buildings', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    // New Moataa Mangrove and Wetland layers
+    var moataaMangroveWetlandLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_mangrove_and_wetland_extent', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+// Initialize the map with OSM as default and layers in the correct order
+var map = new ol.Map({
+    target: 'map',
+    layers: [
+        osmLayer,                 // OpenStreetMap (default)
+        landUseLayer,             // Original Land Use (bottom)
+        riversLayer,              // Original Rivers
+        catchmentBoundariesLayer, // Original Catchment Boundaries
+        buildingsLayer,           // Original Buildings (top)
+        
+        // Vaivase Layers (added in the correct order)
+        vaivaseCatchmentLayer,
+        vaivaseBuildingsLayer,
+        vaivaseRoadsLayer,
+        vaivaseRiversLayer,
+        vaivaseLandUseLayer,
+
+        // Moataa Layers
+        moataaBuildingsLayer,
+        moataaRiversLayer,
+        moataaLandUseLayer,
+
+        // Moataa Mangrove and Wetland Layer (top of Moataa layers)
+        moataaMangroveWetlandLayer
+    ],
+    view: new ol.View({
+        center: ol.proj.fromLonLat([-159.75, -21.23]),  // Set center near Rarotonga
+        zoom: 13
+    })
+});
         // Add a marker layer for geolocation
         var markerLayer = new ol.layer.Vector({
             source: new ol.source.Vector(),
@@ -244,7 +358,29 @@
             catchmentBoundariesLayer.setVisible(isChecked);
             buildingsLayer.setVisible(isChecked);
         });
+		// Toggle visibility for Vaivase layers
+    document.getElementById('toggleVaivase').addEventListener('change', function () {
+        var isChecked = this.checked;
+        vaivaseLandUseLayer.setVisible(isChecked);
+        vaivaseRiversLayer.setVisible(isChecked);
+        vaivaseRoadsLayer.setVisible(isChecked);
+        vaivaseBuildingsLayer.setVisible(isChecked);
+        vaivaseCatchmentLayer.setVisible(isChecked);
+    });
 
+    // Toggle visibility for Moataa Land Use layers
+    document.getElementById('toggleMoataaLandUse').addEventListener('change', function () {
+        var isChecked = this.checked;
+        moataaLandUseLayer.setVisible(isChecked);
+        moataaRiversLayer.setVisible(isChecked);
+        moataaBuildingsLayer.setVisible(isChecked);
+    });
+
+    // Toggle visibility for Moataa Mangrove and Wetland layers
+    document.getElementById('toggleMoataaMangrove').addEventListener('change', function () {
+        var isChecked = this.checked;
+        moataaMangroveWetlandLayer.setVisible(isChecked);
+    });
         // Geolocation function to zoom to user's current location
         document.getElementById('geolocate').addEventListener('click', function () {
             if (navigator.geolocation) {
