@@ -148,7 +148,7 @@
         // Create the CMZ Land Use WMS layer (this should be at the bottom)
         var landUseLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: './geoserver/CI/wms',
+                url: 'https://landtruths.com/geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Land_use_fixed_geom',
                     'TILED': true,
@@ -163,7 +163,7 @@
         // Create the CMZ Rivers WMS layer (updated URL)
         var riversLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: './geoserver/CI/wms',
+                url: 'https://landtruths.com/geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Rivers',
                     'TILED': true,
@@ -178,7 +178,7 @@
         // Create the CMZ Catchment Boundaries WMS layer (updated URL)
         var catchmentBoundariesLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: './geoserver/CI/wms',
+                url: 'https://landtruths.com/geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Catchment_boundaries',
                     'TILED': true,
@@ -193,7 +193,7 @@
         // Create the CMZ Buildings WMS layer (topmost layer)
         var buildingsLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: './geoserver/CI/wms',
+                url: 'https://landtruths.com/geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Buildings4',
                     'TILED': true,
