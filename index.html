@@ -5,32 +5,37 @@
     <title>Land Use in Catchment Management Zones</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.css">
     <style>
+        /* Main styling for the body */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
         }
 
+        /* Container that holds both map and controls */
         .container {
             display: flex;
-            flex-direction: row;
+            flex-direction: row; /* Desktop view: map and controls side by side */
             width: 100%;
-            height: 100vh;
+            height: 100vh; /* Full height of the viewport */
         }
 
+        /* Map section */
         #map {
-            width: 70%;
-            height: 100vh;
+            width: 70%; /* Map takes up 70% of the width on desktop */
+            height: 100vh; /* Full height */
         }
 
+        /* Controls section */
         .controls {
-            width: 30%;
+            width: 30%; /* Controls take up 30% of the width on desktop */
             padding: 10px;
             background-color: #f9f9f9;
             box-sizing: border-box;
-            overflow-y: auto;
+            overflow-y: auto; /* Allow scrolling in controls if necessary */
         }
 
-        input[type="text"], button {
+        /* Styling for inputs and buttons */
+        input[type="text"] {
             width: 100%;
             padding: 10px;
             font-size: 16px;
@@ -38,6 +43,9 @@
 
         button {
             margin-top: 10px;
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
         }
 
         h1 {
@@ -49,19 +57,33 @@
             margin: 20px 0;
         }
 
+        /* Media query for mobile screens */
         @media (max-width: 768px) {
             .container {
-                flex-direction: column;
+                flex-direction: column; /* Stack map and controls vertically on mobile */
             }
 
             #map {
-                width: 100%;
-                height: 50vh;
+                width: 100%; /* Map takes full width */
+                height: 50vh; /* Map takes half of the screen height on mobile */
             }
 
             .controls {
-                width: 100%;
+                width: 100%; /* Controls take full width on mobile */
                 height: auto;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            input[type="text"], button {
+                font-size: 18px;
+                padding: 12px;
             }
         }
     </style>
@@ -70,41 +92,51 @@
     <h1>LandTruths</h1>
     <h2>Paperless ground truthing for spatial datasets</h2>
     <div class="container">
+        <!-- Map Section -->
         <div id="map" class="map"></div>
+
+        <!-- Controls Section -->
         <div class="controls">
             <h3>Layers</h3>
             <input type="checkbox" id="toggleAllLayers" checked>
             <label for="toggleAllLayers">Cook Islands catchment management zones</label><br>
-            <input type="checkbox" id="toggleSatellite" checked>
-            <label for="toggleSatellite">Satellite Imagery</label><br>
-            <input type="checkbox" id="toggleVaivase" checked>
-            <label for="toggleVaivase">Samoa - Vaivase catchment land use</label><br>
-            <input type="checkbox" id="toggleMoataaLandUse" checked>
-            <label for="toggleMoataaLandUse">Samoa - Moataa region Land use</label><br>
-            <input type="checkbox" id="toggleMoataaMangrove" checked>
-            <label for="toggleMoataaMangrove">Samoa - Moataa mangrove and wetland extent 2024</label><br>
+			
+			<input type="checkbox" id="toggleVaivase" checked>
+			<label for="toggleVaivase">Samoa - Vaivase catchment land use</label><br>
 
+			<input type="checkbox" id="toggleMoataaLandUse" checked>
+			<label for="toggleMoataaLandUse">Samoa - Moataa region Land use</label><br>
+
+			<input type="checkbox" id="toggleMoataaMangrove" checked>
+			<label for="toggleMoataaMangrove">Samoa - Moataa mangrove and wetland extent 2024</label><br>
+            
+			<!-- Geolocation Button under the Legend -->
             <button id="geolocate" class="geolocate-button">Zoom to My Location</button>
 
             <div class="legend">
                 <h3>Legend</h3>
-                <!-- Legends for various layers -->
-                <img src="https://landtruths.com/geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
-                <img src="https://landtruths.com/geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Land_use_fixed_geom&format=image/png" alt="Land Use Legend"><br>
-                <!-- Add legends for other layers as needed -->
-            </div>
+                <!-- Legend for Rivers -->
+                <img src="./geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
 
+               <!-- Legend for Vaivase Land Use -->
+		<img src="https://landtruths.com/geoserver/Samoa/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=Samoa%3AVaivase_land_use&format=image/png" alt="Vaivase Land Use Legend">
+ 		</div>
+
+            <!-- Lat and Long functionality -->
             <h3>Coordinates</h3>
             <p>Click on the map to get Lat/Lon.</p>
-            <input type="text" id="latLonDisplay" placeholder="Coordinates will appear here..." readonly>
-            <input type="text" id="luUpdate" placeholder="Enter a description about your location">
-            <button id="addPoint">Add Point</button>
-            <button id="downloadCSV">Download CSV</button>
+            <div>
+                <input type="text" id="latLonDisplay" placeholder="Coordinates will appear here..." readonly>
+                <input type="text" id="luUpdate" placeholder="Enter a description about your location" maxlength="1000000">
+                <button id="addPoint">Add Point</button>
+                <button id="downloadCSV">Download CSV</button>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/4.6.5/ol.js"></script>
     <script>
+        // Variables to store points and LU_Update data
         var pointData = [];
         var selectedLatLon = null;
 
@@ -113,28 +145,14 @@
             source: new ol.source.OSM()
         });
 
-        // Create the GeoTIFF WMS layer
-        var satelliteLayer = new ol.layer.Image({
-            source: new ol.source.ImageWMS({
-                url: 'https://landtruths.com/geoserver/CI/wms',
-                params: {
-                    'LAYERS': 'CI:Raro_background_reprojected',
-                    'TILED': true,
-                    'STYLES': ''
-                },
-                serverType: 'geoserver',
-                crossOrigin: 'anonymous'
-            }),
-            visible: true
-        });
-
-        // Land use layer for Cook Islands
+        // Create the CMZ Land Use WMS layer (this should be at the bottom)
         var landUseLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'https://landtruths.com/geoserver/CI/wms',
+                url: './geoserver/CI/wms',
                 params: {
                     'LAYERS': 'CI:CMZ_Land_use_fixed_geom',
-                    'TILED': true
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
                 },
                 serverType: 'geoserver',
                 crossOrigin: 'anonymous'
@@ -142,69 +160,247 @@
             visible: true
         });
 
-        // Vaivase and Moataa layers
-        var vaivaseLandUseLayer = new ol.layer.Tile({
+        // Create the CMZ Rivers WMS layer (updated URL)
+        var riversLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'https://landtruths.com/geoserver/Samoa/wms',
-                params: {'LAYERS': 'Samoa:Vaivase_land_use', 'TILED': true},
+                url: './geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Rivers',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
                 serverType: 'geoserver',
                 crossOrigin: 'anonymous'
             }),
             visible: true
         });
 
-        var moataaLandUseLayer = new ol.layer.Tile({
+        // Create the CMZ Catchment Boundaries WMS layer (updated URL)
+        var catchmentBoundariesLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'https://landtruths.com/geoserver/Samoa/wms',
-                params: {'LAYERS': 'Samoa:Moataa_LU', 'TILED': true},
+                url: './geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Catchment_boundaries',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
                 serverType: 'geoserver',
                 crossOrigin: 'anonymous'
             }),
             visible: true
         });
 
-        var moataaMangroveWetlandLayer = new ol.layer.Tile({
+        // Create the CMZ Buildings WMS layer (topmost layer)
+        var buildingsLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
-                url: 'https://landtruths.com/geoserver/Samoa/wms',
-                params: {'LAYERS': 'Samoa:Moataa_mangrove_and_wetland_extent', 'TILED': true},
+                url: './geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Buildings4',
+                    'TILED': true,
+                    'STYLES': ''  // Use the default style
+                },
                 serverType: 'geoserver',
                 crossOrigin: 'anonymous'
             }),
             visible: true
         });
+		// New Vaivase layers
+    var vaivaseLandUseLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_land_use', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
 
-        // Initialize the map with all layers
-        var map = new ol.Map({
-            target: 'map',
-            layers: [
-                osmLayer,
-                satelliteLayer,
-                landUseLayer,
-                vaivaseLandUseLayer,
-                moataaLandUseLayer,
-                moataaMangroveWetlandLayer
-            ],
-            view: new ol.View({
-                center: ol.proj.fromLonLat([-159.75, -21.23]),
-                zoom: 13
+    var vaivaseRiversLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_rivers', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var vaivaseRoadsLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_roads', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var vaivaseBuildingsLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_buildings', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var vaivaseCatchmentLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Vaivase_catchment', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    // New Moataa Land Use layers
+    var moataaLandUseLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_LU', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var moataaRiversLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_rivers', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    var moataaBuildingsLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_buildings', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+
+    // New Moataa Mangrove and Wetland layers
+    var moataaMangroveWetlandLayer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: 'https://landtruths.com/geoserver/Samoa/wms',
+            params: {'LAYERS': 'Samoa:Moataa_mangrove_and_wetland_extent', 'TILED': true},
+            serverType: 'geoserver',
+            crossOrigin: 'anonymous'
+        }),
+        visible: true
+    });
+// Initialize the map with OSM as default and layers in the correct order
+var map = new ol.Map({
+    target: 'map',
+    layers: [
+        osmLayer,                 // OpenStreetMap (default)
+        landUseLayer,             // Original Land Use (bottom)
+        riversLayer,              // Original Rivers
+        catchmentBoundariesLayer, // Original Catchment Boundaries
+        buildingsLayer,           // Original Buildings (top)
+        
+        // Vaivase Layers (added in the correct order)
+        vaivaseLandUseLayer,
+	vaivaseRiversLayer,
+	vaivaseRoadsLayer,
+	vaivaseBuildingsLayer,
+	vaivaseCatchmentLayer,
+        
+        // Moataa Layers
+        moataaLandUseLayer,
+	moataaRiversLayer,
+	moataaBuildingsLayer,
+        
+        
+
+        // Moataa Mangrove and Wetland Layer (top of Moataa layers)
+        moataaMangroveWetlandLayer
+    ],
+    view: new ol.View({
+        center: ol.proj.fromLonLat([-159.75, -21.23]),  // Set center near Rarotonga
+        zoom: 13
+    })
+});
+        // Add a marker layer for geolocation
+        var markerLayer = new ol.layer.Vector({
+            source: new ol.source.Vector(),
+            style: new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: 7,
+                    fill: new ol.style.Fill({ color: 'white' }),
+                    stroke: new ol.style.Stroke({
+                        color: [255, 0, 0], width: 2
+                    })
+                })
             })
         });
+        map.addLayer(markerLayer);  // Add marker layer to the map
 
-        // Toggle visibility for each layer
-        document.getElementById('toggleSatellite').addEventListener('change', function () {
-            satelliteLayer.setVisible(this.checked);
-        });
+        // Function to add a marker at the user's geolocation
+        function addMarker(lon, lat) {
+            var marker = new ol.Feature({
+                geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat]))
+            });
+            markerLayer.getSource().clear();  // Clear previous marker
+            markerLayer.getSource().addFeature(marker);  // Add new marker
+        }
+
+        // Toggle visibility for all layers
         document.getElementById('toggleAllLayers').addEventListener('change', function () {
-            landUseLayer.setVisible(this.checked);
+            var isChecked = this.checked;
+            landUseLayer.setVisible(isChecked);
+            riversLayer.setVisible(isChecked);
+            catchmentBoundariesLayer.setVisible(isChecked);
+            buildingsLayer.setVisible(isChecked);
         });
-        document.getElementById('toggleVaivase').addEventListener('change', function () {
-            vaivaseLandUseLayer.setVisible(this.checked);
-        });
-        document.getElementById('toggleMoataaLandUse').addEventListener('change', function () {
-            moataaLandUseLayer.setVisible(this.checked);
-        });
-        document.getElementById('toggleMoataaMangrove').addEventListener('change', function () {
-            moataaMangroveWetlandLayer.setVisible(this.checked);
+		// Toggle visibility for Vaivase layers
+    document.getElementById('toggleVaivase').addEventListener('change', function () {
+        var isChecked = this.checked;
+        vaivaseLandUseLayer.setVisible(isChecked);
+        vaivaseRiversLayer.setVisible(isChecked);
+        vaivaseRoadsLayer.setVisible(isChecked);
+        vaivaseBuildingsLayer.setVisible(isChecked);
+        vaivaseCatchmentLayer.setVisible(isChecked);
+    });
+
+    // Toggle visibility for Moataa Land Use layers
+    document.getElementById('toggleMoataaLandUse').addEventListener('change', function () {
+        var isChecked = this.checked;
+        moataaLandUseLayer.setVisible(isChecked);
+        moataaRiversLayer.setVisible(isChecked);
+        moataaBuildingsLayer.setVisible(isChecked);
+    });
+
+    // Toggle visibility for Moataa Mangrove and Wetland layers
+    document.getElementById('toggleMoataaMangrove').addEventListener('change', function () {
+        var isChecked = this.checked;
+        moataaMangroveWetlandLayer.setVisible(isChecked);
+    });
+        // Geolocation function to zoom to user's current location
+        document.getElementById('geolocate').addEventListener('click', function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var lon = position.coords.longitude;
+                    var lat = position.coords.latitude;
+                    var coords = ol.proj.fromLonLat([lon, lat]);
+                    map.getView().setCenter(coords);
+                    map.getView().setZoom(20);
+
+                    // Add marker to the user's location
+                    addMarker(lon, lat);  // Add this line to place the marker
+                }, function (error) {
+                    alert('Unable to retrieve your location. Make sure location services are enabled.');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
         });
 
         // Handle map clicks to get lat/lon and display them
@@ -213,7 +409,46 @@
             var lon = coordinate[0].toFixed(6);
             var lat = coordinate[1].toFixed(6);
             selectedLatLon = { lat: lat, lon: lon };
-            document.getElementById('latLonDisplay').value = `Lat: ${lat}, Lon: ${lon}`;
+            document.getElementById('latLonDisplay').value = Lat: ${lat}, Lon: ${lon};
+        });
+
+        // Function to add point with description
+        document.getElementById('addPoint').addEventListener('click', function () {
+            var description = document.getElementById('luUpdate').value;
+
+            if (selectedLatLon && description.trim().length > 0) {
+                pointData.push({
+                    lat: selectedLatLon.lat,
+                    lon: selectedLatLon.lon,
+                    description: description
+                });
+                document.getElementById('luUpdate').value = "";  // Clear the description field
+                document.getElementById('latLonDisplay').value = "";  // Clear lat/lon display
+                selectedLatLon = null;  // Reset selected coordinates
+                alert("Point added successfully!");
+            } else {
+                alert('Please select a point on the map and enter a description.');
+            }
+        });
+
+        // Function to download data as CSV
+        document.getElementById('downloadCSV').addEventListener('click', function() {
+            if (pointData.length > 0) {
+                var csvContent = "data:text/csv;charset=utf-8,Lat,Lon,Description\n";
+                pointData.forEach(function(row) {
+                    csvContent += ${row.lat},${row.lon},${row.description}\n;
+                });
+
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', 'points_data.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('No points to download.');
+            }
         });
     </script>
 </body>
