@@ -77,12 +77,20 @@
             <label for="toggleAllLayers">Cook Islands catchment management zones</label><br>
             <input type="checkbox" id="toggleSatellite" checked>
             <label for="toggleSatellite">Satellite Imagery</label><br>
-            
+            <input type="checkbox" id="toggleVaivase" checked>
+            <label for="toggleVaivase">Samoa - Vaivase catchment land use</label><br>
+            <input type="checkbox" id="toggleMoataaLandUse" checked>
+            <label for="toggleMoataaLandUse">Samoa - Moataa region Land use</label><br>
+            <input type="checkbox" id="toggleMoataaMangrove" checked>
+            <label for="toggleMoataaMangrove">Samoa - Moataa mangrove and wetland extent 2024</label><br>
+
             <button id="geolocate" class="geolocate-button">Zoom to My Location</button>
 
             <div class="legend">
                 <h3>Legend</h3>
+                <!-- Legend for Rivers -->
                 <img src="./geoserver/CI/wms?service=WMS&version=1.1.0&request=GetLegendGraphic&layer=CI:CMZ_Rivers&format=image/png" alt="Rivers Legend"><br>
+                <!-- Add any other legends as needed -->
             </div>
 
             <h3>Coordinates</h3>
@@ -119,12 +127,27 @@
             visible: true
         });
 
+        // Other layers (e.g., landUseLayer, riversLayer)
+        var landUseLayer = new ol.layer.Tile({
+            source: new ol.source.TileWMS({
+                url: 'https://landtruths.com/geoserver/CI/wms',
+                params: {
+                    'LAYERS': 'CI:CMZ_Land_use_fixed_geom',
+                    'TILED': true
+                },
+                serverType: 'geoserver',
+                crossOrigin: 'anonymous'
+            }),
+            visible: true
+        });
+
         // Initialize the map with OSM as default and layers in the correct order
         var map = new ol.Map({
             target: 'map',
             layers: [
-                osmLayer,    // OpenStreetMap (default)
-                satelliteLayer  // GeoTIFF layer (new)
+                osmLayer,
+                satelliteLayer,
+                landUseLayer
             ],
             view: new ol.View({
                 center: ol.proj.fromLonLat([-159.75, -21.23]),
@@ -134,26 +157,27 @@
 
         // Toggle visibility for Satellite layer
         document.getElementById('toggleSatellite').addEventListener('change', function () {
-            var isChecked = this.checked;
-            satelliteLayer.setVisible(isChecked);
+            satelliteLayer.setVisible(this.checked);
         });
 
-        // Geolocation function to zoom to user's current location
-        document.getElementById('geolocate').addEventListener('click', function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    var lon = position.coords.longitude;
-                    var lat = position.coords.latitude;
-                    var coords = ol.proj.fromLonLat([lon, lat]);
-                    map.getView().setCenter(coords);
-                    map.getView().setZoom(16);
-                    addMarker(lon, lat);
-                }, function () {
-                    alert('Unable to retrieve your location.');
-                });
-            } else {
-                alert('Geolocation is not supported by this browser.');
-            }
+        // Toggle visibility for Cook Islands layer
+        document.getElementById('toggleAllLayers').addEventListener('change', function () {
+            landUseLayer.setVisible(this.checked);
+        });
+
+        // Toggle visibility for Vaivase layers
+        document.getElementById('toggleVaivase').addEventListener('change', function () {
+            // Add logic to toggle Vaivase layers
+        });
+
+        // Toggle visibility for Moataa Land Use layers
+        document.getElementById('toggleMoataaLandUse').addEventListener('change', function () {
+            // Add logic to toggle Moataa Land Use layers
+        });
+
+        // Toggle visibility for Moataa Mangrove layers
+        document.getElementById('toggleMoataaMangrove').addEventListener('change', function () {
+            // Add logic to toggle Moataa Mangrove layers
         });
 
         // Function to add a marker at a given location
@@ -185,45 +209,6 @@
             var lat = coordinate[1].toFixed(6);
             selectedLatLon = { lat: lat, lon: lon };
             document.getElementById('latLonDisplay').value = `Lat: ${lat}, Lon: ${lon}`;
-        });
-
-        // Function to add point with description
-        document.getElementById('addPoint').addEventListener('click', function () {
-            var description = document.getElementById('luUpdate').value;
-
-            if (selectedLatLon && description.trim().length > 0) {
-                pointData.push({
-                    lat: selectedLatLon.lat,
-                    lon: selectedLatLon.lon,
-                    description: description
-                });
-                document.getElementById('luUpdate').value = "";  // Clear the description field
-                document.getElementById('latLonDisplay').value = "";  // Clear lat/lon display
-                selectedLatLon = null;
-                alert("Point added successfully!");
-            } else {
-                alert('Please select a point on the map and enter a description.');
-            }
-        });
-
-        // Function to download data as CSV
-        document.getElementById('downloadCSV').addEventListener('click', function() {
-            if (pointData.length > 0) {
-                var csvContent = "data:text/csv;charset=utf-8,Lat,Lon,Description\n";
-                pointData.forEach(function(row) {
-                    csvContent += `${row.lat},${row.lon},${row.description}\n`;
-                });
-
-                var encodedUri = encodeURI(csvContent);
-                var link = document.createElement('a');
-                link.setAttribute('href', encodedUri);
-                link.setAttribute('download', 'points_data.csv');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                alert('No points to download.');
-            }
         });
     </script>
 </body>
